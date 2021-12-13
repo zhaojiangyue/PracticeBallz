@@ -31,4 +31,10 @@ public class Block : MonoBehaviour
         if (hitsRemaining > 0) UpdateVisualState();
         else {Destroy(gameObject);}
     }
+
+    internal void SetHits(int hits)
+    {
+        hitsRemaining = hits;
+        UpdateVisualState();
+    }
 }
