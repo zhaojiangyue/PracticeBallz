@@ -25,7 +25,7 @@ public class BlockSpawner : MonoBehaviour
         // }
     }
 
-    private void SpawnRowOfBlocks()
+    public void SpawnRowOfBlocks()
     {
         foreach (var block in blockSpawned)
         {

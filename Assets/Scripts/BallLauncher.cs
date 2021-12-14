@@ -10,12 +10,25 @@ public class BallLauncher : MonoBehaviour
     private Vector3 _startPosition;
     private Vector3 _endPosition;
     private LaunchPreview _launchPreview;
-    
-    [SerializeField] private GameObject ballPrefab;
+    private List<Ball> balls = new List<Ball>();
+
+    [SerializeField] private Ball ballPrefab;
+    private int _ballsReady;
+    private BlockSpawner _blockSpawner;
 
     private void Awake()
     {
+        _blockSpawner = FindObjectOfType<BlockSpawner>();
         _launchPreview = GetComponent<LaunchPreview>();
+        CreateBall();
+    }
+
+    void CreateBall()
+    {
+        var ball = Instantiate(ballPrefab);
+        balls.Add(ball);
+        _ballsReady++;
+
     }
 
     // Update is called once per frame
@@ -37,11 +50,26 @@ public class BallLauncher : MonoBehaviour
 
     private void EndDrag()
     {
+        StartCoroutine(LaunchBalls());
+        
+    }
+
+    private IEnumerator LaunchBalls()
+    {
         Vector3 direction = _endPosition - _startPosition;
         direction.Normalize();
+        
+        foreach (var VARIABLE in balls)
+        {
+            // var ball = Instantiate(ballPrefab, transform.position, Quaternion.identity);
+            VARIABLE.transform.position = transform.position;
+            VARIABLE.gameObject.SetActive(true);
+            VARIABLE.GetComponent<Rigidbody2D>().AddForce(-direction);
 
-        var ball = Instantiate(ballPrefab, transform.position, Quaternion.identity);
-        ball.GetComponent<Rigidbody2D>().AddForce(-direction);
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        _ballsReady = 0;
     }
 
 
@@ -55,5 +83,15 @@ public class BallLauncher : MonoBehaviour
     {
         _startPosition = worldPosition;
         _launchPreview.SetStartPoint(_startPosition);
+    }
+
+    public void ReturnBall()
+    {
+        _ballsReady++;
+        if (_ballsReady==balls.Count)
+        {
+            _blockSpawner.SpawnRowOfBlocks();
+            CreateBall();
+        }
     }
 }
